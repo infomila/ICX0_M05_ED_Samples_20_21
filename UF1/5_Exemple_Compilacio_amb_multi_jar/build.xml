@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project name="ElMeuProjecte" default="dist" basedir=".">
+    <description>
+         Guió Ant senzill
+    </description> 
+  <!--paràmetres goblals del guió -->
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="dist"/>
+
+  <target name="init" depends="clean">
+    <!-- Crea una marca de temps -->
+    <tstamp/>
+    <!--Crea el directori temporal de compilació -->
+    <mkdir dir="${build}"/> <!--fixeu-vos en l’us de les propietats! -->
+  </target>
+
+  <target name="compile" depends="init"
+        description="compilar els fonts " >
+    <!--Compila totes les fonts del ${src} cap a ${build} -->
+    <javac srcdir="${src}" destdir="${build}"
+     classpath="lib\itext-5.1.2\itextpdf-5.1.2.jar;lib\itext-5.1.2\itext-xtra-5.1.2.jar"
+    />
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generar la distribució " >
+    <!--Crea el directori de distribució  -->
+    <mkdir dir="${dist}/lib"/>
+
+    <!--Crea un jar del que hi ha dins de ${build}  anomenant-lo ElMeuProjecte-${DSTAMP}.jar file -->
+    <jar jarfile="${dist}/ElMeuProjecte-${DSTAMP}.jar" basedir="${build}">
+       <manifest>
+         <attribute name="Main-Class" value="part1.chapter01.HelloWorld"/>
+         <attribute name="Class-Path" value="lib\itext-5.1.2\itextpdf-5.1.2.jar lib\itext-5.1.2\itext-xtra-5.1.2.jar" />
+       </manifest>
+    </jar>
+    
+    <!--Copiar les llibreries de /lib a /dist/lib -->
+    <copy todir="${dist}/lib">
+      <fileset dir="lib"/>
+    </copy>
+    
+  </target>
+
+
+
+
+
+  <target name="superjar" depends="compile"
+        description="generar la distribució empaquetada " >
+
+
+
+    <!--Crea un jar del que hi ha dins de ${build}  anomenant-lo ElMeuProjecte-${DSTAMP}.jar file -->
+    <jar jarfile="${dist}/ElMeuProjecte-${DSTAMP}.jar" basedir="${build}">
+       <manifest>
+         <attribute name="Main-Class" value="part1.chapter01.HelloWorld"/>        
+       </manifest>
+       <zipfileset includes="**/*.class **/*.lng **/*.afm **/*.txt" src="lib\itext-5.1.2\itextpdf-5.1.2.jar"/>
+       <zipfileset includes="**/*.class  **/*.lng **/*.afm **/*.txt" src="lib\itext-5.1.2\itext-xtra-5.1.2.jar"/>
+    </jar>
+
+
+    
+  </target>
+
+  <target name="clean"
+        description="netejar" >
+    <!--Esborra els directoris ${build} i ${dist} , incloent subdirectoris fills-->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+  
+  
+  <target name="execute" depends="dist">
+  
+    <echo message="Anem a executar el programa:"></echo>
+    
+    <java jar="${dist}/ElMeuProjecte-${DSTAMP}.jar"
+      fork="true"
+      failonerror="true"
+      maxmemory="128m">
+    </java>
+    
+  </target>
+  
+</project>

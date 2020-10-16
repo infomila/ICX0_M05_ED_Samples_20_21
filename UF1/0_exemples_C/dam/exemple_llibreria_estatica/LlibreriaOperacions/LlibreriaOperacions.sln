@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2026
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LlibreriaOperacions", "LlibreriaOperacions.vcxproj", "{6477ECF9-1B60-4946-B78F-8DB8283795E4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6477ECF9-1B60-4946-B78F-8DB8283795E4}.Debug|x64.ActiveCfg = Debug|x64
+		{6477ECF9-1B60-4946-B78F-8DB8283795E4}.Debug|x64.Build.0 = Debug|x64
+		{6477ECF9-1B60-4946-B78F-8DB8283795E4}.Debug|x86.ActiveCfg = Debug|Win32
+		{6477ECF9-1B60-4946-B78F-8DB8283795E4}.Debug|x86.Build.0 = Debug|Win32
+		{6477ECF9-1B60-4946-B78F-8DB8283795E4}.Release|x64.ActiveCfg = Release|x64
+		{6477ECF9-1B60-4946-B78F-8DB8283795E4}.Release|x64.Build.0 = Release|x64
+		{6477ECF9-1B60-4946-B78F-8DB8283795E4}.Release|x86.ActiveCfg = Release|Win32
+		{6477ECF9-1B60-4946-B78F-8DB8283795E4}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {16BC541D-95AF-4A21-8C26-D21AF2C659B1}
+	EndGlobalSection
+EndGlobal

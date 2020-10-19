@@ -11,36 +11,118 @@
     <description>Builds, tests, and runs the project PDFCreator.</description>
     <import file="nbproject/build-impl.xml"/>
     
+   
+    <!-- ********************************************* -->
+    <!-- Instal·lació d'Ant Contrib -->
+    <!-- essencial per poder usar <if> i <foreach> -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="lib/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+    <!-- ********************************************* -->
+ 
     
-    <target name="fer_super_jar" description="Fer un super jar" depends="init">
-        <jar destfile="${dist.jar}" basedir="${build.classes.dir}">
+    <target name="-pre-jar">
+        <echo message="Hola món abans de fer el jar"></echo>
+    </target>
+  
+    <target name="0_superjar" description="Fer super jar" depends="compile">
+        
+        <input message="Vols fer el superjar?" 
+               validargs="Si,No"
+               addproperty="vol.fer.jar"
+               defaultvalue="Si" />
+        <if>
+            <equals arg1="${vol.fer.jar}" arg2="Si"></equals>
+            <then>
+                <!-- calculem el nom de l'arxiu jar que crearem -->
+                <tstamp></tstamp>
+                <property name="super.jar" value="${dist.dir}/${DSTAMP}_HelloWorld.jar"></property>
+                
+                <!-- verifiquem si l'arxiu existeix o no -->
+                <available file="${super.jar}" 
+                           property="super.jar.existent"/>
+                
+                <if>
+                    <equals arg1="${super.jar.existent}" arg2="true"></equals>
+                    <then>
+                        <!-- cal preguntar a l'usuari si vol sobrescriure-->
+                        <input message="Vol sobreescriure l'arxiu jar?"
+                               validargs="Si,No"
+                               defaultvalue="No"
+                               addproperty="vol.sobrescriure">
+                        </input> 
+                        <if>
+                            <equals arg1="${vol.sobrescriure}" arg2="Si"></equals>
+                            <then>
+                                <echo message="He de fer el jar"></echo>
+                                <antcall target="fer_superjar_privat"></antcall>
+                            </then>
+                            <else>
+                                <echo message="NO de fer el jar"></echo>
+                            </else>
+                        </if>      
+                    </then>
+                    <else>
+                        <echo message="a fer el jar !!!"></echo>
+                        <antcall target="fer_superjar_privat"></antcall>
+                    </else>
+                </if>
+                
+            </then>            
+            <else>
+                <echo message="no faig el jar"></echo>
+            </else>
+        </if>
+        
+       
+    </target>
+    
+    
+    
+    <target name="fer_superjar_privat">
+        
+        <echo message="${dist.jar} -  ${build.classes.dir}"></echo>
+        <jar destfile="${dist.jar}">
+            <fileset dir="${build.classes.dir}"/>
+            <zipfileset includes="**/*.class **/*.txt **/*.lng **/*.afm" src="lib/itext-5.1.2/itext-xtra-5.1.2.jar"/>
+            <zipfileset includes="**/*.class **/*.txt **/*.lng **/*.afm" src="lib/itext-5.1.2/itextpdf-5.1.2.jar"/>
             <manifest>
                 <attribute name="Main-Class"
                            value="part1.chapter01.HelloWorld"/>
             </manifest>
-            <zipfileset includes="**/*.class **/*.txt **/*.lng **/*.afm " src="lib/itext-5.1.2/itext-xtra-5.1.2.jar"/>
-            <zipfileset includes="**/*.class **/*.txt **/*.lng **/*.afm" src="lib/itext-5.1.2/itextpdf-5.1.2.jar"/>
         </jar>
-        <tstamp />
-        
-        <property name="super.jar" value="${dist.dir}/${DSTAMP}_HelloWorld.jar"></property>
-        
-        <move file="${dist.jar}" tofile="${super.jar}" />
-        
-        <property file="FTP.properties"/>
-        
-        <echo message="Fer FTP a ${FTP.SERVER}:${FTP.PORT} amb user ${FTP.USER}/${FTP.PASSWORD}"></echo>
-        
-        <ftp server="${FTP.SERVER}"
-             remotedir="/"
+        <echo message="Nou nom de l'arxiu: ${super.jar}"></echo>       
+                
+        <move file="${dist.jar}" tofile="${super.jar}"></move>     
+        <property file="FTP.properties"></property>
+        <echo message="Pujant al servidor ${FTP.IP}:${FTP.PORT}/${FTP.REMOTEDIR} amb l'usuari ${FTP.USER}/${FTP.PASSWORD} "></echo>
+        <ftp server="${FTP.IP}"
+             port="${FTP.PORT}"
+             remotedir="${FTP.REMOTEDIR}"
              userid="${FTP.USER}"
              password="${FTP.PASSWORD}"
-             port="${FTP.PORT}"
-             depends="yes"
-             passive="true">
-            <fileset file="${super.jar}"/>
-            
-        </ftp>
+             depends="yes">
+            <fileset file="${jar_name}"/>
+        </ftp>  
+        
+    </target>
+    
+    
+    
+    
+    <target name="show_jars_in_lib" description="Show the jars stored into the lib folder"
+    >
+        <foreach target="show_filename" param="file_name">
+            <fileset dir="lib"  casesensitive="yes">
+                <include name="**/*.jar"/>
+            </fileset>
+        </foreach>
+    </target>
+    
+    <target name="show_filename">
+        <echo message="${file_name}"></echo>
     </target>
     
     

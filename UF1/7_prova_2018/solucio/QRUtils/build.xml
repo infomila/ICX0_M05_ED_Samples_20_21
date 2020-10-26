@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<project name="QRUtils" default="default" basedir=".">
+    <description>Builds, tests, and runs the project QRUtils.</description>
+    <import file="nbproject/build-impl.xml"/>
+    
+    
+    <!-- ********************************************* -->
+    <!-- Instal·lació d'Ant Contrib -->
+    <!-- essencial per poder usar <if> i <foreach> -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="lib/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+    <!-- ********************************************* -->
+ 
+    
+    <target name="-post-jar">
+        
+        <!-- a) Es copiï la carpeta examples dins de dist -->
+        <copy todir="${dist.dir}/examples">
+            <fileset dir="examples"/>
+        </copy>
+        <!-- b) Es creï la carpeta output dins de dist.-->
+        <mkdir dir="${dist.dir}/output"></mkdir>
+        <!-- c) Es fusionin totes les llibreries de lib dins del jar, de forma que només haguem de distribuir un únic jar
+        als clients -->
+        <jar destfile="${dist.jar}">
+            <fileset dir="${build.classes.dir}"/>
+            <zipfileset includes="**/*.class" src="lib/javase-3.3.3.jar"/>
+            <zipfileset includes="**/*.class" src="../ZXingCore/dist/ZXingCore.jar"/>
+            <zipfileset includes="**/*.class" src="../ZXingCore/lib/commonops.jar"/>
+            <manifest>
+                <attribute name="Main-Class"
+                           value="zxingclient.QREncoder"/>
+            </manifest>
+        </jar>
+        
+    </target>
+    <!-- Exercici 6 -->
+    <!--a. Cal que asseguri tenir el jar de l’aplicació..-->
+    <target name="0_TestQR" description="Testing QR" depends="jar">
+        <!-- b. Mostrarà un splash screen amb un missatge : “Testejant QR”.-->
+        <splash showduration="1000" displaytext="Testejant QR"></splash>
+        <!-- c) c. Ens ha de donar a triar entre dues opcions:
+        “Test bàsic” i “Test múltiple”-->
+        <input validargs="Test Bàsic,Test Múltiple"
+               addproperty="tipusTest"
+               message="Tria el test que vols fer:">
+        </input>
+        <if>
+            <equals arg1="${tipusTest}" arg2="Test Bàsic"></equals>
+            <then>
+                <echo message="Test bàsic seleccionat" />
+                
+                <!-- 1. La tasca executarà l’aplicació dues vegades, una per codificar i l’altre per decodificar,
+                de la mateixa forma que a l’exercici 3. Obtenim com a sortides un missatge1.png
+                (codificació) i un decoded1.txt (decodificació) -->
+                <!-- la tasca java té dos alternatives:
+                            * main-class i el class-path
+                            * executar el jar
+                -->
+                <java classname="zxingclient.QREncoder"
+                      classpath="${run.classpath}"
+                >
+                    <arg value="examples/missatge.txt"/> <!-- primer argument-->
+                    <arg value="examples/decoded.png"/> <!-- segon argument -->
+                </java>
+                <java classname="zxingclient.QRDecoder"
+                      classpath="${run.classpath}"
+                >
+                    <arg value="examples/decoded.png"/> <!-- primer argument-->
+                    <arg value="examples/decoded.txt"/> <!-- segon argument -->
+                </java>                
+                
+                <!--
+                2. Amb la tasca <checksum> calculeu el resum MD5 de cadascun dels arxius i deseu-los
+                a propietats MESSAGE_MD5 i DECODED_MD5. El resum MD5 és una cadena de
+                mida fixa que representa tot l’arxiu.
+                -->
+                <checksum file="examples/missatge.txt" 
+                          property="MESSAGE_MD5"/>
+                <checksum file="examples/decoded.txt" 
+                          property="DECODED_MD5"/>
+                    
+                <echo message="${MESSAGE_MD5} ?= ${DECODED_MD5}"></echo>
+                
+                <!-- 3. Si els resums són iguals, les probabilitats de que els dos arxius siguin idèntiques és
+                MOLT alta. Compareu els dos MD5, en cas d’igualtat mostreu un missatge “Test
+                superat” , altrament mostre un missatge “Test fallat, decoficació incorrecta”.-->
+                <if>
+                    <equals arg1="${MESSAGE_MD5}" arg2="${DECODED_MD5}"></equals>
+                    <then>
+                        <echo message="Test superat."></echo>
+                    </then>
+                    <else>
+                        <echo message="Test fallat."></echo>
+                    </else>
+                </if>                               
+            </then>
+            <else>
+                <echo message="Test múltiple seleccionat" />
+                <!--1. Carregeu la informació que hi ha a l’arxiu de propietats “servers.conf”-->
+                <property file="servers.conf"></property>
+                <!--2. Creeu una carpeta “downloads”-->
+                <mkdir dir="downloads"></mkdir>
+                <!-- 3. Amb la tasca <get> descarregueu a “downloads” l’arxiu que hi ha a la URL que
+                correspon a la propietat TEST_SERVER_URL de servers.conf. -->
+                <!--get src="${TEST_SERVER_URL}" dest="downloads"></get-->
+                <!-- 4. Descomprimiu l’arxiu, i obtindreu múltiples arxius *.png i *.txt -->
+                <unzip  dest="downloads">
+                    <fileset dir="downloads">
+                        <include name="**/*.zip"/>
+                    </fileset>
+                </unzip>
+                <!--5. Per cada arxiu png (tots contenen QRs), decodifiqueu-lo. Si l’arxiu png s’anomena
+                “test1.png”, deseu el resultat a “test1.decoded.txt”.-->
+                <foreach target="validaQR" param="nom_arxiu">
+                    <param name="run.classpath" 
+                           value="${run.classpath}"/>
+                    <fileset dir="downloads" casesensitive="yes">
+                        <include name="**/*.png"/>
+                    </fileset>
+                </foreach>
+
+            </else>
+        </if>       
+    </target>
+    
+    <target name="validaQR">
+        <echo message="${nom_arxiu}"></echo>
+        <java classname="zxingclient.QRDecoder"
+                              classpath="${run.classpath}"
+        >
+            <arg value="${nom_arxiu}"/> <!-- primer argument-->
+            <arg value="${nom_arxiu}.decoded.txt"/> <!-- segon argument -->
+            
+            
+        </java>  
+    </target>
+    
+    
+    
+    
+    
+    <!--
+
+    There exist several targets which are by default empty and which can be 
+    used for execution of your tasks. These targets are usually executed 
+    before and after some main targets. They are: 
+
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
+
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
+
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
+
+    For list of available properties check the imported 
+    nbproject/build-impl.xml file. 
+
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are: 
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar:                  JAR building
+      run:                      execution of project 
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="QRUtils-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on 
+    the compile target as the regular run target does. Again, for a list of available 
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file. 
+
+    -->
+</project>

@@ -30,7 +30,10 @@ public class HelloWorld {
      */
     public static void main(String[] args)
     	throws DocumentException, IOException {
-    	new HelloWorld().createPdf(RESULT);
+        
+        if(args.length!=1) throw new RuntimeException("Argument missatge obligatori");
+        
+    	new HelloWorld().createPdf(RESULT, args[0]);
     }
 
     /**
@@ -39,7 +42,7 @@ public class HelloWorld {
      * @throws    DocumentException 
      * @throws    IOException 
      */
-    public void createPdf(String filename)
+    public void createPdf(String filename, String missatge)
 	throws DocumentException, IOException {
         // step 1
         Document document = new Document();
@@ -48,7 +51,7 @@ public class HelloWorld {
         // step 3
         document.open();
         // step 4
-        document.add(new Paragraph("Hello World!"));
+        document.add(new Paragraph(missatge));
         // step 5
         document.close();
     }

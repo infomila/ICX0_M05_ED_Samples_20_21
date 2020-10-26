@@ -80,6 +80,19 @@
     </target>
     
     
+    <target name="0_llistat_llibreries" description="0_llistat_llibreries">
+        
+        <foreach target="mostra_nom" param="nom_arxiu">
+            <fileset dir="lib" >
+                <include name="**/*.jar"></include>
+            </fileset>
+        </foreach>
+        
+    </target>
+    
+    <target name="mostra_nom">
+        <echo message="${nom_arxiu}"/>
+    </target>
     
     <target name="fer_superjar_privat">
         

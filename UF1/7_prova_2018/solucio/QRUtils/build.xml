@@ -123,21 +123,43 @@
                         <include name="**/*.png"/>
                     </fileset>
                 </foreach>
-
+                <echo message="Test superat amb èxit"></echo>
             </else>
         </if>       
     </target>
     
     <target name="validaQR">
+        
+        <!-- ${nom_arxiu} = test1.png -->
         <echo message="${nom_arxiu}"></echo>
         <java classname="zxingclient.QRDecoder"
-                              classpath="${run.classpath}"
+              classpath="${run.classpath}"
         >
             <arg value="${nom_arxiu}"/> <!-- primer argument-->
             <arg value="${nom_arxiu}.decoded.txt"/> <!-- segon argument -->
-            
-            
+            <!-- ${nom_arxiu} = test1.png.decoded.txt -->
         </java>  
+        
+        <!-- he de comparar test1.png.decoded.txt amb test1.txt -->
+        <basename property="nomSenseExtensio" file="${nom_arxiu}" suffix=".png"></basename>
+        <echo message="${nomSenseExtensio}"></echo>
+        
+        <checksum file="downloads/${nomSenseExtensio}.txt" 
+                  property="MESSAGE_MD5"/>
+        <checksum file="${nom_arxiu}.decoded.txt" 
+                          property="DECODED_MD5"/>                    
+        <echo message="${MESSAGE_MD5} ?= ${DECODED_MD5}"></echo>
+                        
+        <if>
+            <not>
+                <equals arg1="${MESSAGE_MD5}" arg2="${DECODED_MD5}"></equals>
+            </not>
+            <then>
+                <fail message="test erroni"> </fail>
+            </then>
+        </if>    
+        
+        
     </target>
     
     

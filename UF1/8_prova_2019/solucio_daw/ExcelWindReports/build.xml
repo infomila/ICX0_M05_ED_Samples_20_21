@@ -10,7 +10,17 @@
 <project name="ExcelWindReports" default="default" basedir=".">
     <description>Builds, tests, and runs the project ExcelWindReports.</description>
     <import file="nbproject/build-impl.xml"/>
-                
+   
+    
+    <!-- ********************************************* -->
+    <!-- Instal·lació d'Ant Contrib -->
+    <!-- essencial per poder usar <if> i <foreach> -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="lib/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+    <!-- ********************************************* -->                    
     
     <target name="-post-jar" description="fem el superjar">                
         <!--a. Copiï a la carpeta dist la carpeta data.-->
@@ -23,7 +33,7 @@
         <delete dir="${dist.dir}/lib"/>
         
         <!--d. Fusionarà totes les llibreries de lib dins del jar, de forma que només haguem de distribuir un únic jar als
-clients-->
+        clients-->
 
         <fileset dir="lib" id="lib_jars">
             <include name="*.jar"/>
@@ -34,9 +44,9 @@ clients-->
             <zipgroupfileset refid="lib_jars" />            
             <zipfileset includes="**/*.class" src="../SurfWebLibrary/dist/SurfWebLibrary.jar"/>
             <zipfileset includes="**/*.class" src="../SurfWebLibrary/lib/jsoup-1.12.1.jar"/>
-             <manifest>
-            <attribute name="Main-Class"
-                     value="windreportingtool.WindReportingTool"/>
+            <manifest>
+                <attribute name="Main-Class"
+                           value="windreportingtool.WindReportingTool"/>
             </manifest>
         </jar>        
         
@@ -44,14 +54,108 @@ clients-->
     </target>    
     
     
-                                                                    <!--Compilarà el projecte-->
-    <target name="GeneraInforme" description="Generació d'informes" depends="compile">
+    <!--Compilarà el projecte-->
+    <target name="0_GeneraInforme" description="Generació d'informes" depends="compile">
         
         <!--Demanarà a l’usuari que triï entre una de les dues opcions següents:-->
-        <input validargs="1. Generar un informe d’un arxiu,2. Generar informes del FTP"
-        addproperty="tipusInforme"
+        <property name="opcio1" value="1. Generar un informe d’un arxiu"></property>
+        <property name="opcio2" value="2. Generar informes del FTP"></property>
+        
+        <input validargs="${opcio1},${opcio2}"
+               addproperty="tipusInforme"
         >
         </input>
+        <if>
+            <equals arg1="${tipusInforme}" arg2="${opcio1}"></equals>
+            <then>
+                <echo message="Opció 1 seleccionada"></echo>
+                
+                <!--Demanarà a l’usuari que escrigui la ruta relativa de l’arxiu que cal utilitzar.-->
+                <input addproperty="ruta_arxiu" defaultvalue="data/catalunya.txt"></input>
+                
+                
+                <!--2. Useu la condició <available> per verificat si l’arxiu del
+                 punt 1 existeix . Si no existeix l’arxiu
+                es mostra el missatge “arxiu no existent” i s’acaba l’script.
+                Altrament continuem. -->
+                <available file="${ruta_arxiu}" property="existeix_arxiu"></available>
+                <if>
+                    <not>
+                        <equals arg1="${existeix_arxiu}" arg2="true"></equals>
+                    </not>
+                    <then>
+                        <fail message="l'arxiu no existeix"></fail>
+                    </then>
+                </if>
+                <!--3. A continuació s’executarà l’aplicació. La sortida serà sempre 
+                                a la carpeta
+                output\[nom_arxiu].xlsx. Per exemple, si l’usuari escriu “data\catalunya.txt” (al punt1) la
+                sortida es deixarà a “output\catalunya.xlsx”. Useu <basename> -->
+                
+                <basename property="nom" file="${ruta_arxiu}"
+                          suffix=".txt"/>
+                
+                <java   classname="windreportingtool.WindReportingTool"
+                        classpath="${run.classpath}">
+                    <arg value="${ruta_arxiu}"></arg>
+                    <arg value="output\${nom}.xls"></arg>
+                </java>
+                
+            </then>
+            <!-- ******************************************************* -->
+            <else>
+                <echo message="Opció 2 seleccionada"></echo>
+                
+                <!-- 1. Useu l’arxiu de configuració a la ruta 
+                etc/config.ftp per carregar els paràmetres de connexió
+                FTP. -->
+                <property file="etc/config.ftp"></property>
+                
+                <mkdir dir="downloads"></mkdir>
+                
+                <!--
+                3. Amb els paràmetres de l’apartat anterior, connecteu-vos via FTP a la carpeta remota
+                TAULER\M05\ED_UF1_EXA i descarregueu-vos a la vostra carpeta local downloads tots
+                els arxius *.txt. ( useu remoteDir adequadament ... )                
+                -->
+                <ftp action="get"
+                     server="${FTP.IP}"
+                     userid="${FTP.USER}"
+                     password="${FTP.PASSWORD}"
+                     passive="yes"
+                     remotedir="TAULER\M05\ED_UF1_EXA"
+                >
+                    <fileset dir="downloads">
+                        <include name="**/*.txt"/>
+                    </fileset>
+                </ftp>
+                <!--
+                4. Cridarem l’aplicació per tots i cadascun dels arxius existent a la carpeta data. Useu
+                <foreach>. La sortida es deixarà a downloads\output -->
+                <foreach target="accio" param="nom_arxiu">
+                    <!-- cal passar run.classpath a la target del foreach per què sinó
+                          en perdem el valor -->
+                    <param name="run.classpath" value="${run.classpath}"></param>
+                    <fileset dir="downloads">
+                        <include name="*.txt"></include>
+                    </fileset>
+                </foreach>
+               
+            </else>
+        </if>
+        
+    </target>
+    
+    <target name="accio">
+        <echo message="* ${nom_arxiu}"></echo>
+        
+        <basename property="nom" file="${nom_arxiu}"
+          suffix=".txt"/>
+        <java   classname="windreportingtool.WindReportingTool"
+                classpath="${run.classpath}">
+            <arg value="${nom_arxiu}"></arg>
+            <arg value="output\${nom}.xls"></arg>
+        </java>
         
     </target>
     

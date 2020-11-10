@@ -11,11 +11,19 @@
     <description>Builds, tests, and runs the project ExcelWindReports.</description>
     <import file="nbproject/build-impl.xml"/>
     
-    
+    <!-- ********************************************* -->
+    <!-- Instal·lació d'Ant Contrib -->
+    <!-- essencial per poder usar <if> i <foreach> -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="lib/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+    <!-- ********************************************* -->
     
     <target name="-post-jar" description="fer superjar">
         <!--a. Copiï a la carpeta dist la carpeta data.-->
-       <copy todir="${dist.dir}/data">
+        <copy todir="${dist.dir}/data">
             <fileset dir="data"/>
         </copy>
         
@@ -44,68 +52,103 @@
         
         
     </target>
+    <!-- a. Compilarà el projecte -->
+    <target name="0_Genera_Informe" description="generació d'informes" depends="compile">
+        
+        <!--b. Demanarà a l’usuari que triï entre una de les dues opcions següents:-->
+        
+        <property name="opcio1" value="1. Generar un informe d’un arxiu"></property>
+        <property name="opcio2" value="2. Generar informes del FTP"></property>
+        <input validargs="${opcio1},${opcio2}" 
+               addproperty="tipusInforme">
+        </input>
+        
+        <if>
+            <equals arg1="${tipusInforme}" arg2="${opcio1}"></equals>
+            <then>
+                <echo message="Opció 1 triada"></echo>
+                
+                
+                <!-- 1. Demanarà a l’usuari que escrigui la ruta relativa de l’arxiu que cal utilitzar. -->
+                <input addproperty="ruta_arxiu" defaultvalue="data/catalunya.txt"></input>
+                
+                <!-- 2. Useu la condició <available> per verificat si l’arxiu del punt 1 existeix . Si no existeix l’arxiu
+                es mostra el missatge “arxiu no existent” i s’acaba l’script. Altrament continuem. -->
+                <available file="${ruta_arxiu}" property="arxiu_existent"></available>                
+                <if>
+                    <not>
+                        <equals arg1="${arxiu_existent}" arg2="true"></equals>
+                    </not>
+                    <then>
+                        <fail message="Arxiu no existent"></fail>
+                    </then>
+                </if>
+                <echo message="L'arxiu existeix, continuem"></echo>
+                <!-- 3. A continuació s’executarà l’aplicació. La sortida serà sempre a la carpeta
+                output\[nom_arxiu].xlsx. Per exemple, si l’usuari escriu “data\catalunya.txt” (al punt1) la
+                sortida es deixarà a “output\catalunya.xlsx”. Useu <basename>-->
+                
+                <basename file="${ruta_arxiu}" property="nom_arxiu" suffix=".txt"></basename>
+                <java classname="windreportingtool.WindReportingTool"
+                      classpath="${run.classpath}">
+                
+                    <arg value="${ruta_arxiu}"></arg>
+                    <arg value="output/${nom_arxiu}.xls"></arg>                
+                </java>                                
+            </then>
+            <else>
+                <echo message="Opció 2 triada"></echo>
+                <!-- 1. Useu l’arxiu de configuració a la ruta etc/config.ftp per carregar els paràmetres de connexió                 
+                FTP. -->
+                <property file="etc/config.ftp"></property>
+                
+                <!--2. Creeu la carpeta downloads. -->
+                <mkdir dir="downloads"></mkdir>
+                
+                <!-- 3. Amb els paràmetres de l’apartat anterior, connecteu-vos via FTP a la carpeta remota
+                TAULER\M05\ED_UF1_EXA i descarregueu-vos a la vostra carpeta local downloads tots
+                els arxius *.txt. ( useu remoteDir adequadament ... ) -->                                             
+                
+                <ftp action="get"
+                     server="${FTP.IP}"
+                     userid="${FTP.USER}"
+                     password="${FTP.PASSWORD}"
+                     remotedir="/TAULER/M05/ED_UF1_EXA"
+                     passive="true">
+                    <fileset dir="downloads">
+                        <include name="**/*.txt"/>
+                    </fileset>
+                </ftp>
+                
+                <!-- 4. Cridarem l’aplicació per tots i cadascun dels arxius existent
+                 a la carpeta downloads. Useu
+                <foreach>. La sortida es deixarà a downloads\output -->
+                <foreach target="executa_programa" param="arxiu_a_processar">
+                    <param name="run.classpath" value="${run.classpath}"></param>
+                    <fileset dir="downloads">
+                        <include name="**/*.txt"></include>
+                    </fileset>
+                </foreach>
+                
+            </else>
+        </if>
+        
+    </target>
     
-    
-    
-    
-    <!--
-
-    There exist several targets which are by default empty and which can be 
-    used for execution of your tasks. These targets are usually executed 
-    before and after some main targets. They are: 
-
-      -pre-init:                 called before initialization of project properties
-      -post-init:                called after initialization of project properties
-      -pre-compile:              called before javac compilation
-      -post-compile:             called after javac compilation
-      -pre-compile-single:       called before javac compilation of single file
-      -post-compile-single:      called after javac compilation of single file
-      -pre-compile-test:         called before javac compilation of JUnit tests
-      -post-compile-test:        called after javac compilation of JUnit tests
-      -pre-compile-test-single:  called before javac compilation of single JUnit test
-      -post-compile-test-single: called after javac compilation of single JUunit test
-      -pre-jar:                  called before JAR building
-      -post-jar:                 called after JAR building
-      -post-clean:               called after cleaning build products
-
-    (Targets beginning with '-' are not intended to be called on their own.)
-
-    Example of inserting an obfuscator after compilation could look like this:
-
-        <target name="-post-compile">
-            <obfuscate>
-                <fileset dir="${build.classes.dir}"/>
-            </obfuscate>
-        </target>
-
-    For list of available properties check the imported 
-    nbproject/build-impl.xml file. 
-
-
-    Another way to customize the build is by overriding existing main targets.
-    The targets of interest are: 
-
-      -init-macrodef-javac:     defines macro for javac compilation
-      -init-macrodef-junit:     defines macro for junit execution
-      -init-macrodef-debug:     defines macro for class debugging
-      -init-macrodef-java:      defines macro for class execution
-      -do-jar:                  JAR building
-      run:                      execution of project 
-      -javadoc-build:           Javadoc generation
-      test-report:              JUnit report generation
-
-    An example of overriding the target for project execution could look like this:
-
-        <target name="run" depends="ExcelWindReports-impl.jar">
-            <exec dir="bin" executable="launcher.exe">
-                <arg file="${dist.jar}"/>
-            </exec>
-        </target>
-
-    Notice that the overridden target depends on the jar target and not only on 
-    the compile target as the regular run target does. Again, for a list of available 
-    properties which you can use, check the target you are overriding in the
-    nbproject/build-impl.xml file. 
-
-    -->
+    <target name="executa_programa">
+        <echo message=" * ${arxiu_a_processar}"></echo>
+        
+        <echo message=">> ${run.classpath}"></echo>
+        
+        <basename file="${arxiu_a_processar}" property="nom_arxiu" suffix=".txt"></basename>
+        <java classname="windreportingtool.WindReportingTool"
+                              classpath="${run.classpath}">
+                
+            <arg value="${arxiu_a_processar}"></arg>
+            <arg value="output/${nom_arxiu}.xls"></arg>                
+        </java>     
+        
+        
+    </target>
+     
 </project>

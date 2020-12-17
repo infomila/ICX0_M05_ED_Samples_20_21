@@ -58,18 +58,34 @@ public class AplicacioTarifesTest {
         };
         AplicacioTarifes at = new AplicacioTarifes();
         for(int i=0;i<valors.length;i++) {
-            
+            System.out.println(">t:"+(int)valors[i][0] + "/ e:"+(int)valors[i][1]);
             assertEquals(valors[i][2], 
                     at.getPreu((int)valors[i][0], (int)valors[i][1]), 0.0001);
         }
-        
+
+    }
+ 
+    @Test
+    public void testGetPreu_CasosErronis(){
+
+        testejaCasErroni( 5, 30);
+        testejaCasErroni( -1, 30);
+        testejaCasErroni( 0, 30);
+        testejaCasErroni( 1, 0);
+        testejaCasErroni( 1, -1);
+        testejaCasErroni( 1, 120);
+        //---------------------------------------------------------
+    }
+    
+    private void testejaCasErroni( int tipusSeient, int edat) {
+        AplicacioTarifes at = new AplicacioTarifes();
         try {
-            at.getPreu(-1, 40);
+            at.getPreu(tipusSeient, edat);
             // si estic aquí.....no ha petat !!
-            fail("El valor -1 no és vàlid per les cadires");
+            fail("El valor t:"+tipusSeient+" i e:"+edat+" no és vàlid.");
         } catch(Exception e) {
             //si estic aquí, tot va bé
-        }
+        }        
     }
 
 }

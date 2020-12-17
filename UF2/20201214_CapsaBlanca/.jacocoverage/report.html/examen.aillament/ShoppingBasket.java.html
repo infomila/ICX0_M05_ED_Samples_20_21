@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ca"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ShoppingBasket.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;ProjecteExamen&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">examen.aillament</a> &gt; <span class="el_source">ShoppingBasket.java</span></div><h1>ShoppingBasket.java</h1><pre class="source lang-java linenums">package examen.aillament;
+
+import java.util.ArrayList;
+
+/**
+ *
+ * @author bernat
+ */
+<span class="fc" id="L9">public class ShoppingBasket {</span>
+
+     public String getSummary( int customerId , ArrayList&lt;Integer&gt; productIds, ArrayList&lt;Integer&gt; units ){
+         
+<span class="fc" id="L13">         ProductCatalogDB pcDB = new ProductCatalogDB();</span>
+         
+<span class="nc" id="L15">         double discount = pcDB.getCustomerDiscount(customerId);</span>
+<span class="nc" id="L16">         double totalAmount=0;</span>
+<span class="nc" id="L17">         String summary=&quot;&quot;;</span>
+<span class="nc" id="L18">         int i=0;</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">         for(int Id:productIds){</span>
+<span class="nc" id="L20">             ProductInfo pi = pcDB.getProductInfo(Id);</span>
+<span class="nc bnc" id="L21" title="All 2 branches missed.">             if(pi!=null) {</span>
+<span class="nc" id="L22">                double linePrice = units.get(i) * pi.getUnitPrice() ;</span>
+
+<span class="nc" id="L24">                summary += fixedSize(&quot;{&quot; +pi.getId() + &quot;}&quot;,10)+fixedSize(pi.getDescription(), 30) +&quot;\t&quot; + fixedSize(&quot;&quot;+</span>
+<span class="nc" id="L25">                        String.format(&quot;%.2f&quot;, pi.getUnitPrice())+&quot;�/u&quot;,10) + &quot; x &quot; + units.get(i) + &quot;u. = &quot; + </span>
+<span class="nc" id="L26">                        String.format(&quot;%.2f&quot;,linePrice)+ &quot;�\n&quot;;</span>
+<span class="nc" id="L27">                i++;</span>
+<span class="nc" id="L28">                totalAmount += linePrice;</span>
+<span class="nc" id="L29">             } else {</span>
+<span class="nc" id="L30">                summary += fixedSize(&quot;{&quot; + productIds.get(i) + &quot;}&quot;,10)+&quot;| Producte descatalogat\n&quot;;</span>
+             }
+<span class="nc" id="L32">         }</span>
+<span class="nc" id="L33">         double dis = totalAmount*(discount/100.0);</span>
+<span class="nc" id="L34">         summary += fixedSize(&quot;SUBTOTAL&quot;,10) + &quot;| &quot;+ String.format(&quot;%.2f&quot;,totalAmount) +&quot;�\n&quot;;</span>
+<span class="nc" id="L35">         summary += fixedSize(&quot;DISCOUNT&quot;,10) + &quot;| &quot;+ String.format(&quot;%.2f&quot;,dis) +&quot;�\n&quot;;</span>
+<span class="nc" id="L36">         summary += fixedSize(&quot;TOTAL&quot;,10) + &quot;| &quot;+ String.format(&quot;%.2f&quot;,(totalAmount-dis)) +&quot;�\n&quot;;</span>
+<span class="nc" id="L37">         return summary;</span>
+     }
+    
+    private String fixedSize(String s, int size ){
+<span class="nc" id="L41">        return String.format(&quot;| %-&quot;+size+&quot;.&quot;+size+&quot;s&quot;, s) ;</span>
+    }
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

@@ -16,7 +16,7 @@ import javax.activation.*;
  */
 public class Missatger implements IMissatger {
 
-    public Missatger() {
+    Missatger() {
     }
 
     

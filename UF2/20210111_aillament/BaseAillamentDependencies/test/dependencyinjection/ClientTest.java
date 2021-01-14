@@ -5,7 +5,7 @@
 package dependencyinjection;
 
 
-import comunicacions.MissatgerFake;
+import comunicacions.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -42,8 +42,13 @@ public class ClientTest {
     public void testCanviarOferta() throws Exception{
         System.out.println("canviarOferta");
         
+        MissatgerFactory.setTestMode(true);
+        
+        
         Client c = new Client(1, "Paco", "paco@gmail.com");
-        c.canviarOferta(20, new MissatgerFake());
+        // Versió amb injecció de dependències   
+        //c.canviarOferta(20, new MissatgerFake());
+        c.canviarOferta(20);
         assertEquals(20, c.getDescompte(), 0.0001);
         
     }

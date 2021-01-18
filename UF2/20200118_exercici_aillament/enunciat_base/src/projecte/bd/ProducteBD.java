@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package projecte.bd;
 
 import projecte.model.Producte;
@@ -14,7 +10,9 @@ import java.sql.Statement;
  *
  * @author bernat
  */
-public class ProducteBD {
+public class ProducteBD implements IProducteBD {
+    
+    ProducteBD(){}
     
     public  void getProducteFromBD(int id, Producte p) throws Exception{
 

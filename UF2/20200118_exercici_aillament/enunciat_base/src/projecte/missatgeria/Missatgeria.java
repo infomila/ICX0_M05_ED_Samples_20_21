@@ -12,7 +12,7 @@ import java.util.HashMap;
  *
  * @author bernat
  */
-public class Missatgeria {
+public class Missatgeria implements IMissatgeria {
 
     private HashMap<String,String> emails;
     
@@ -32,6 +32,7 @@ public class Missatgeria {
             return emails.get(departament);
     }
     
+    @Override
     public void enviar(String departament, String missatge ) throws Exception
     {
         String email = getAdrecaEmail(departament);

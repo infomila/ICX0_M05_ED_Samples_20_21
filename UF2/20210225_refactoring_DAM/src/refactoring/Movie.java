@@ -1,37 +1,60 @@
 package refactoring;
 
 // From book: 'Refactoring' by Martin Fowler
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 // This is the original code before refactoring begins
-public abstract class Movie {
+public class Movie {
 
-    public static final int CHILDRENS = 2;
-    public static final int NEW_RELEASE = 1;
-    public static final int REGULAR = 0;
+    private String mTitle;
+    private MovieType mPriceCode;
+    private Tarificador mTarificador;
 
-    private String _title;
-    private int _priceCode;
-
-    public Movie(String title, int priceCode) {
-        _title = title;
-        _priceCode = priceCode;
+    public Movie(String title, MovieType priceCode) {
+        setTitle(title);
+        setPriceCode(priceCode);
     }
 
-    public int getPriceCode() {
-        return _priceCode;
+    public MovieType getPriceCode() {
+        return mPriceCode;
     }
 
-    public void setPriceCode(int arg) {
-        _priceCode = arg;
+    public void setPriceCode(MovieType priceCode) {
+        mPriceCode = priceCode;
+
+        Class c = priceCode.getTarificadorClass();        
+     
+        try {
+            mTarificador = (Tarificador) c.newInstance();
+        } catch (InstantiationException ex) {
+            Logger.getLogger(Movie.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Price code no suportat");
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(Movie.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Price code no suportat");
+        }
+        /*
+            switch(priceCode) {
+            case REGULAR: mTarificador = new TarificadorRegular();break;
+            case CHILDRENS: mTarificador = new TarificadorChildren();break;
+            case NEW_RELEASE: mTarificador = new TarificadorNewRelease();break;
+            default: throw new RuntimeException("price code no vàlid:"+priceCode);
+            }*/
     }
 
     public String getTitle() {
-        return _title;
+        return mTitle;
     }
+
     public void setTitle(String title) {
-        _title = title;
+        mTitle = title;
     }
-    abstract double getPrice(int daysRented);
-    
+
+    double getPrice(int daysRented) {
+        return mTarificador.getPrice(daysRented);
+    }
+
     /*double getPrice(int daysRented) {
         double thisAmount = 0;
         switch (this.getPriceCode()) {
@@ -53,5 +76,4 @@ public abstract class Movie {
         }
         return thisAmount;
     }*/
-
 }

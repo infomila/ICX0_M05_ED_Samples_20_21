@@ -4,12 +4,9 @@ package refactoring;
  *
  * @author Usuari
  */
-public class MovieRegular extends Movie {
+public class TarificadorRegular extends Tarificador {
 
-    public MovieRegular(String title){
-        super(title,Movie.REGULAR);
-    }
-    
+     
     @Override
     double getRentalAmount(int daysRented) {
         double amount = 2;

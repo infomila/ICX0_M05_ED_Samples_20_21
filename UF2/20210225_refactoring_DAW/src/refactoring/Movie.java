@@ -1,34 +1,63 @@
 package refactoring;
 
 // From book: 'Refactoring' by Martin Fowler
+
+import java.lang.reflect.Constructor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 // This is the original code before refactoring begins
-public abstract class Movie {
+public  class Movie {
 
-    public static final int CHILDRENS = 2;
-    public static final int NEW_RELEASE = 1;
-    public static final int REGULAR = 0;
 
-    private String _title;
-    private int _priceCode;
+    private String mTitle;
+    private MovieType mPriceCode;
+    private Tarificador mTarificador;
 
-    public Movie(String title, int priceCode) {
-        _title = title;
-        _priceCode = priceCode;
+    public Movie(String title, MovieType priceCode) {
+        setTitle(title);
+        setPriceCode(priceCode);        
     }
 
-    public int getPriceCode() {
-        return _priceCode;
+    public MovieType getPriceCode() {
+        return mPriceCode;
     }
 
-    public void setPriceCode(int arg) {
-        _priceCode = arg;
+    public void setPriceCode(MovieType type) {
+        try {
+            /*
+            switch(type) {
+            case REGULAR : mTarificador =       new TarificadorRegular();break;
+            case NEW_RELEASE : mTarificador =   new TarificadorNewRelease();break;
+            case CHILDRENS : mTarificador =     new TarificadorChildren();break;
+            default: throw new RuntimeException("codi no vàlid!");
+            }
+            */
+            Class c = type.getTarificadorClass();
+            mTarificador = (Tarificador)c.newInstance();
+            
+            mPriceCode = type;
+            
+        } catch (InstantiationException ex) {
+            Logger.getLogger(Movie.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Error creant el tarificador");
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(Movie.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Error creant el tarificador");
+        }
     }
 
     public String getTitle() {
-        return _title;
+        return mTitle;
+    }
+    
+    public void setTitle(String title){
+        mTitle = title;
     }
 
-    abstract double getRentalAmount(int daysRented);
+    double getRentalAmount(int daysRented) {
+        return mTarificador.getRentalAmount(daysRented);
+    }
     
     /*double getRentalAmount(int daysRented) {
         double thisAmount = 0;

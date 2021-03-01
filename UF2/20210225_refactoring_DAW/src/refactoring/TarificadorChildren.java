@@ -4,11 +4,7 @@ package refactoring;
  *
  * @author Usuari
  */
-public class MovieChildren extends Movie {
-
-    public MovieChildren(String title) {
-        super(title, Movie.CHILDRENS);
-    }
+public class TarificadorChildren extends Tarificador {
 
     @Override
     double getRentalAmount(int daysRented) {

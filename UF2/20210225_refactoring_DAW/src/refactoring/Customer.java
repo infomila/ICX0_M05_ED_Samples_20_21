@@ -1,7 +1,9 @@
 package refactoring;
 
+import refactoring.reports.StatementReport;
 import java.util.Iterator;
 import java.util.LinkedList;
+import refactoring.reports.DocType;
 
 //From book: 'Refactoring' by Martin Fowler
 //This is the original code before refactoring begins
@@ -23,17 +25,15 @@ public class Customer {
     }
 
     public String statement() {
-       
-        String result = "Rental Record for " + getName() + "\n";
-        for (Rental curRental : mRentals) {
-            // show figures for this rental
-            result += "\t" + curRental.getMovie().getTitle() + "\t" + String.valueOf(curRental.getRentalAmount()) + "\n";
-        }
-        // add footer lines
-        result += "Amount owed is " + String.valueOf(getOwedAmount()) + "\n";
-        result += "You earned " + String.valueOf(getFrequentRenterPoints()) + " frequent renter points";
 
-        return result;
+        StatementReport report = new StatementReport(this, mRentals);
+        return report.getReport(DocType.TEXT);
+
+    }
+
+    public String statementHTML() {
+        StatementReport report = new StatementReport(this, mRentals);
+        return report.getReport(DocType.HTML);
     }
 
     public double getOwedAmount() {

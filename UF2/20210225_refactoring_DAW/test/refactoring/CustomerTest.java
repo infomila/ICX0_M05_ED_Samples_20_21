@@ -19,7 +19,8 @@ public class CustomerTest extends TestCase {
 		Customer c = new Customer("David");
 		assertNotNull(c);	
 	}
-
+        
+ 
 	public void testAddRental() {
 		Customer customer2 = new Customer("Sallie");
 		Movie movie1 = new Movie("Gone with the Wind", MovieType.REGULAR);
@@ -98,6 +99,11 @@ public class CustomerTest extends TestCase {
 							"You earned 4 frequent renter points";
 		String statement = customer1.statement();
 		assertEquals(expected, statement);
+                
+                //-----------------------------------
+                System.out.println(""+customer1.statementHTML());
+                
+                
 	}
 	
 	//TODO make test for price breaks in code.

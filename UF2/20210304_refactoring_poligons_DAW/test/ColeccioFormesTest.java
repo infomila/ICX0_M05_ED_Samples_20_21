@@ -24,13 +24,13 @@ public class ColeccioFormesTest {
     @Test
     public void testInformeFormes() {
         ColeccioFormes c = new ColeccioFormes();
-        c.addForma(new Forma(Forma.TRIANGLE_RECTANGLE_ISOSCELES, 2));
-        c.addForma(new Forma(Forma.CERCLE, 2));
-        c.addForma(new Forma(Forma.CERCLE, 3));
-        c.addForma(new Forma(Forma.QUADRAT, 3));
-        c.addForma(new Forma(Forma.TRIANGLE_RECTANGLE_ISOSCELES, 4));
-        c.addForma(new Forma(Forma.QUADRAT, 3));
-        c.addForma(new Forma(Forma.QUADRAT, 1));
+        c.addForma(new Triangle(2));
+        c.addForma(new Cercle(2));
+        c.addForma(new Cercle(3));
+        c.addForma(new Quadrat(3));
+        c.addForma(new Triangle(4));
+        c.addForma(new Quadrat(3));
+        c.addForma(new Quadrat(1));
         String resultat = 
                 "========================"+"\n" +
                 "- Figura <2>: Triangle	 costat - 2.0 - area 2"+"\n" +

@@ -19,14 +19,14 @@ public class PrinterInventoryTest {
     public void testGetExpensesInventory() {
         
         PrinterInventory inventory = new PrinterInventory();
-        inventory.addPrinter(new Printer("LSJ41223", Printer.HP_LASERJET_VII, 0, 3050));
-        inventory.addPrinter(new Printer("LSJ01295", Printer.HP_LASERJET_VII, 0, 8972));
-        inventory.addPrinter(new Printer("OFJ00122", Printer.HP_OFFICEJET_5, 210, 675));
-        inventory.addPrinter(new Printer("LSJ01223", Printer.HP_LASERJET_VII, 0, 634));
-        inventory.addPrinter(new Printer("OFJ00123", Printer.HP_OFFICEJET_5, 560, 1200));
-        inventory.addPrinter(new Printer("RT000001", Printer.RENTING_LASER_JET, 0, 3600));
-        inventory.addPrinter(new Printer("RT000002", Printer.RENTING_LASER_JET, 0, 456));
-        inventory.addPrinter(new Printer("RT000003", Printer.RENTING_LASER_JET, 0, 5621));
+        inventory.addPrinter(new LaserjetPrinter("LSJ41223", 0, 3050));
+        inventory.addPrinter(new LaserjetPrinter("LSJ01295",  0, 8972));
+        inventory.addPrinter(new OfficeJetPrinter("OFJ00122",210, 675));
+        inventory.addPrinter(new LaserjetPrinter("LSJ01223", 0, 634));
+        inventory.addPrinter(new OfficeJetPrinter("OFJ00123", 560, 1200));
+        inventory.addPrinter(new RentingPrinter("RT000001", 0, 3600));
+        inventory.addPrinter(new RentingPrinter("RT000002",  0, 456));
+        inventory.addPrinter(new RentingPrinter("RT000003",  0, 5621));
         
         String result = inventory.getExpensesInventory();
         String expectedResult=

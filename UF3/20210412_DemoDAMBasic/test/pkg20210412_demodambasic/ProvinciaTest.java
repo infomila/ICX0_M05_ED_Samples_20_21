@@ -5,6 +5,9 @@
  */
 package pkg20210412_demodambasic;
 
+
+import java.util.HashSet;
+import java.util.Set;
 import pkg20210412_demodambasic.munis.Provincia;
 import pkg20210412_demodambasic.munis.Municipi;
 import org.junit.Test;
@@ -25,6 +28,27 @@ public class ProvinciaTest {
 
     @Test
     public void testSetCapital() {
+        Provincia p1 = new Provincia(1, "Barcelona");
+        Municipi m1 = new Municipi(1, "Igualada",p1);
+        assertEquals(false,m1.esCapital());
+        p1.setCapital(m1);
+        assertEquals(true,m1.esCapital());
+        assertEquals( m1, p1.getCapital());
+        //-------------------------------------
+        Provincia p2 = new Provincia(2, "Lleida");
+        Municipi m4 = new Municipi(4, "Sort",p2);
+        // Sort, capital de Barcelona
+        try {
+            p1.setCapital(m4);
+            fail("Nom hem de permetre que els municipis siguin capitals d'una província diferent a la seva.");
+        }catch(Exception ex){}
+        assertEquals( m1, p1.getCapital());
+        //--------------------------------------
+        Municipi m2 = new Municipi(2, "Manresa",p1);
+        p1.setCapital(m2);
+        assertEquals(false,m1.esCapital());
+        assertEquals(true,m2.esCapital());
+        
     }
 
     @Test

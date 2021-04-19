@@ -14,7 +14,7 @@ public class Municipi {
     public Municipi(long id, String nom, Provincia provincia) {
         this.id = id;
         this.nom = nom;
-        setProvincia(provincia);
+        provincia.addMunicipi(this);
     }
 
     public long getId() {
@@ -36,7 +36,12 @@ public class Municipi {
     public Provincia getProvincia() {
         return provincia;
     }
-
+    
+    public boolean esCapital(){
+        return this.equals(this.provincia.getCapital());
+    }
+    
+/*
     public void setProvincia(Provincia novaProvincia) { 
         boolean isNouMunicipi = this.provincia==null;
         if( novaProvincia != this.provincia){        
@@ -50,9 +55,22 @@ public class Municipi {
                     throw new RuntimeException("No podem afegir dos vegades el mateix municipi a una província");
                 }
             }
-        }
-        
+        }        
+    }*/
+    
+    
+    public void setProvincia(Provincia novaProvincia) { 
+        // si ja són iguals no cal fer res....i evitem recursivitats.
+        if( novaProvincia != this.provincia ){        
+            // IMPORTANT: condició de salvaguarda per no petar
+            // i evitar recusivitats
+            if(!novaProvincia.contains(this)){
+                novaProvincia.addMunicipi(this);                
+            }
+            this.provincia = novaProvincia;            
+        }        
     }
+    
 
     @Override
     public int hashCode() {

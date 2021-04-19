@@ -22,6 +22,30 @@ public class ProvinciaTest {
 
     @Test
     public void testSetCapital() {
+        Provincia p1 = new Provincia(1, "Barcelona");
+        Municipi m1 = new Municipi(p1, 1,"Igualada");
+        assertFalse( m1.esCapital() );
+        p1.setCapital(m1);
+        assertTrue( m1.esCapital() );
+        assertEquals(m1, p1.getCapital());
+        //--------------------------------------
+        Provincia p2 = new Provincia(2, "Lleida");
+        Municipi m4 = new Municipi(p2, 5,"Sort"); 
+        try{
+            p1.setCapital(m4);
+            fail("No podem assignar un municipi d'una província com a capital d'una altra.");
+        }catch(Exception ex) {
+            
+        }
+        assertEquals(m1, p1.getCapital());
+        //--------------------------------------
+        Municipi m2 = new Municipi(p1, 2,"Manresa");
+        assertEquals(m1, p1.getCapital());
+        p1.setCapital(m2);
+        assertEquals(m2, p1.getCapital());
+        assertFalse( m1.esCapital() );
+        assertTrue( m2.esCapital() );
+
     }
 
     @Test

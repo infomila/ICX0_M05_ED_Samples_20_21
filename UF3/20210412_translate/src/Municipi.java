@@ -10,7 +10,8 @@ public class Municipi {
     public Municipi(Provincia provincia, long codi, String nom) {
         this.codi = codi;
         this.nom = nom;
-        setProvincia(provincia);
+        //setProvincia(provincia);
+        provincia.addMunicipi(this);
 
     }
         
@@ -19,15 +20,20 @@ public class Municipi {
         return provincia;
     }
 
-    public void setProvincia(Provincia provincia) {
-        if(provincia==null) throw new RuntimeException("El municipi necessita una província");
-                       
-        if(provincia.addMunicipi(this)==false){
-            if(this.provincia==null){
-                throw new RuntimeException("Municipi ja existent a la província");
+    public void setProvincia(Provincia novaProvincia) { 
+        // si ja són iguals no cal fer res....i evitem recursivitats.
+        if( novaProvincia != this.provincia ){        
+            // IMPORTANT: condició de salvaguarda per no petar
+            // i evitar recusivitats
+            if(!novaProvincia.contains(this)){
+                novaProvincia.addMunicipi(this);                
             }
-        };
-        this.provincia = provincia;
+            this.provincia = novaProvincia;            
+        }        
+    }
+    
+    public boolean esCapital(){
+        return this.equals(this.provincia.getCapital());
     }
 
     @Override

@@ -27,12 +27,16 @@ public class Provincia {
     }
 
     public void setCapital(Municipi capital) {
-        this.capital = capital;
+        if(capital.getProvincia().equals(this)){
+            this.capital = capital;
+        } else {
+            throw new RuntimeException("No podem fer capital un muncipi d'una altra província.");
+        }
     }
     
     //-----------------------------------
     // relació Provincia--té_municipis--> Municipi
-    public boolean addMunicipi(Municipi nou) 
+    /*public boolean addMunicipi(Municipi nou) 
     {
         
         if(!this.municipis.contains(nou)){
@@ -43,7 +47,34 @@ public class Provincia {
         } else {
             return false;
         }
+    }*/
+    
+    public boolean contains(Municipi nou) {
+        return this.municipis.contains(nou);
     }
+    
+    public boolean addMunicipi(Municipi nou) 
+    {        
+        
+        if(!this.municipis.contains(nou)){
+            
+            this.municipis.add(nou);              
+            
+            // esborrar directament el lligam amb l'antiga província
+            if(nou.getProvincia()!=null && nou.getProvincia()!=this) {
+                nou.getProvincia().removeMunicipi(nou);
+            }
+            // demanar al municipi que ara ens posi com la seva nova 
+            // província
+            nou.setProvincia(this);            
+            return true;
+            
+        } else {
+             throw new RuntimeException("No podem afegir dos vegades el mateix municipi a una província");
+        }
+    }
+    
+    
     void removeMunicipi(int index){
         this.municipis.remove(index);
     }
